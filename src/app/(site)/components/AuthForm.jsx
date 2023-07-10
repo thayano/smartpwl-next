@@ -1,194 +1,134 @@
-'use client';
+"use client";
 
-import axios from "axios";
-import { signIn, useSession } from 'next-auth/react';
-import { useCallback, useEffect, useState } from 'react';
-import { BsGithub, BsGoogle } from 'react-icons/bs';
-import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
+import { useContext, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-
+import dynamic from "next/dynamic";
 import Input from "@/app/components/inputs/Inputs";
-// import AuthSocialButton from './AuthSocialButton';
 import Button from "@/app/components/Button";
 import { toast } from "react-hot-toast";
+import { AuthContext } from "@/app/context/AuthContext";
+import Alert from "@/app/context/AlertContext";
 
+const ReCAPTCHA = dynamic(() => import("react-google-recaptcha"), {
+  loading: () => "",
+});
 
-
+const objAlert = {
+  message: "",
+  status: "",
+  type: "",
+};
 const AuthForm = () => {
-    const session = useSession();
-    const router = useRouter();
-    const [variant, setVariant] = useState('LOGIN');
-    const [isLoading, setIsLoading] = useState(false);
+  const [msgError, setMsgError] = useState(objAlert);
 
-    useEffect(() => {
-        if (session?.status === 'authenticated') {
-            router.push('/conversations')
-        }
-    }, [session?.status, router]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { singIn } = useContext(AuthContext);
 
-    const toggleVariant = useCallback(() => {
-        if (variant === 'LOGIN') {
-            setVariant('REGISTER');
-        } else {
-            setVariant('LOGIN');
-        }
-    }, [variant]);
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+      recaptcha: "",
+    },
+  });
 
-    const {
-        register,
-        handleSubmit,
-        formState: {
-            errors,
-        }
-    } = useForm({
-        defaultValues: {
-            name: '',
-            email: '',
-            password: ''
-        }
-    });
+  const onSubmit = async (data) => {
+    const { response } = await singIn(data);
 
-    const onSubmit = async (data) => {
-        const response = await axios.get('/api/login')
-        console.log(response)
-        
-}
-        // setIsLoading(true);
-
-        // if (variant === 'REGISTER') {
-        //     axios.post('/api/register', data)
-        //         .then(() => signIn('credentials', {
-        //             ...data,
-        //             redirect: false,
-        //         }))
-        //         .then((callback) => {
-        //             if (callback?.error) {
-        //                 toast.error('Invalid credentials!');
-        //             }
-
-        //             if (callback?.ok) {
-        //                 router.push('/conversations')
-        //             }
-        //         })
-        //         .catch(() => toast.error('Something went wrong!'))
-        //         .finally(() => setIsLoading(false))
-        // }
-
-        // if (variant === 'LOGIN') {
-        //     const res = await signIn('credentials', {
-        //         redirect: false,
-        //         email: data.email,
-        //         password: data.password,
-        //         callbackUrl: `${window.location.origin}`,
-        //     });
-        //     if (res?.error) {
-        //         setError(res.error);
-        //     } else {
-        //         setError(null);
-        //     }
-        //     if (res.url) router.push(res.url);
-        //     setSubmitting(false);
-        // }
-    
-    const socialAction = (action) => {
-        setIsLoading(true);
-
-        signIn(action, { redirect: false })
-            .then((callback) => {
-                if (callback?.error) {
-                    toast.error('Invalid credentials!');
-                }
-
-                if (callback?.ok) {
-                    router.push('/conversations')
-                }
-            })
-            .finally(() => setIsLoading(false));
+    if (response.status != 200) {
+      objAlert.message =
+        response.data.message ||
+        "Ocorreu um erro, entre em contato com o Suporte!";
+      objAlert.status = true;
+      objAlert.type = "error";
     }
+  };
+  //   if (res.url) router.push(res.url);
+  //   setSubmitting(false);
+  // };
 
-    return (
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-            <div
-                className="
-        bg-white
-          px-4
+  const onReCAPTCHAChange = async (captchaCode) => {
+    if (!captchaCode) {
+      setMsgError("Faça a validação no reCAPTCHA");
+      return;
+    }
+    setValue("recaptcha", captchaCode);
+  };
+
+  return (
+    <div className="lg:mx-0 mx-auto sm:w-full sm:max-w-md py-8">
+      <div
+        className="
+          mx-8
           py-8
-          shadow
-          sm:rounded-lg
-          sm:px-10
+          sm:rounded-[15px]
+          sm:px-0
+          sm:mx-1
         "
-            >
-                <form
-                    className="space-y-6"
-                    onSubmit={handleSubmit(onSubmit)}
-                >
-                    {variant === 'REGISTER' && (
-                        <Input
-                            disabled={isLoading}
-                            register={register}
-                            errors={errors}
-                            required
-                            id="name"
-                            label="Name"
-                        />
-                    )}
-                    <Input
-                        disabled={isLoading}
-                        register={register}
-                        errors={errors}
-                        required
-                        id="email"
-                        label="Email address"
-                        type="email"
-                    />
-                    <Input
-                        disabled={isLoading}
-                        register={register}
-                        errors={errors}
-                        required
-                        id="password"
-                        label="Password"
-                        type="password"
-                    />
-                    <div>
-                        <Button disabled={isLoading} fullWidth type="submit">
-                            {variant === 'LOGIN' ? 'Sign in' : 'Register'}
-                        </Button>
-                    </div>
-                </form>
-
-                <div className="mt-6">
-                    <div className="relative">
-                        <div
-                            className="
-                absolute 
-                inset-0 
-                flex 
-                items-center
-              "
-                        >
-                            <div className="w-full border-t border-gray-300" />
-                        </div>
-                        <div className="relative flex justify-center text-sm">
-                            <span className="bg-white px-2 text-gray-500">
-                                Or continue with
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="mt-6 flex gap-2">
-                        {/* <AuthSocialButton 
-              icon={BsGithub} 
-              onClick={() => socialAction('github')} 
+      >
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <Alert
+            status={objAlert.status}
+            message={objAlert.message}
+            type={objAlert.type}
+          />
+          <Input
+            disabled={isLoading}
+            register={register}
+            errors={errors}
+            required
+            id="email"
+            label="Email"
+            type="email"
+            validator={{
+              required: "Este campo é obrigatório",
+              pattern: {
+                value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                message: "Por favor, insira um endereço de e-mail válido",
+              },
+            }}
+          />
+          <Input
+            disabled={isLoading}
+            register={register}
+            errors={errors}
+            required
+            id="password"
+            label="Senha"
+            type="password"
+            validator={{
+              required: "Este campo é obrigatório",
+            }}
+          />
+          <div className="mt-6">
+            <ReCAPTCHA
+              sitekey={process.env.RECAPTCHA_SITE_KEY}
+              onChange={onReCAPTCHAChange}
+              style={{ with: "100%" }}
             />
-            <AuthSocialButton 
-              icon={BsGoogle} 
-              onClick={() => socialAction('google')} 
-            /> */}
-                    </div>
-                </div>
-                <div
-                    className="
+          </div>
+          <div className="text-sm mt-4">
+            <a
+              href="#"
+              className="font-semibold text-[#005f8e] hover:text-sky-700"
+            >
+              Esqueceu a senha?
+            </a>
+          </div>
+          <div>
+            <Button disabled={isLoading} fullWidth type="submit">
+              Entar
+            </Button>
+          </div>
+        </form>
+        <div
+          className="
             flex 
             gap-2 
             justify-center 
@@ -197,20 +137,12 @@ const AuthForm = () => {
             px-2 
             text-gray-500
           "
-                >
-                    <div>
-                        {variant === 'LOGIN' ? 'New to Messenger?' : 'Already have an account?'}
-                    </div>
-                    <div
-                        onClick={toggleVariant}
-                        className="underline cursor-pointer"
-                    >
-                        {variant === 'LOGIN' ? 'Create an account' : 'Login'}
-                    </div>
-                </div>
-            </div>
+        >
+          <div className="underline cursor-pointer">oi</div>
         </div>
-    );
-}
+      </div>
+    </div>
+  );
+};
 
 export default AuthForm;

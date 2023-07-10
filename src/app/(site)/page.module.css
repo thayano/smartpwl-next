@@ -1,0 +1,11 @@
+.img-back {
+    background: #FFFFFF url("../../assets/backgroundLogin.svg") no-repeat right top fixed;
+    background-size: cover;
+    background-position: center;
+    color: #212529;
+    -webkit-font-smoothing: antialiased;
+    z-index: -1;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+  }
