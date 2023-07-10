@@ -23,10 +23,10 @@ const Auth = () => {
 
       <div className="flex flex-col min-h-screen">
         <main className="flex-grow">
-          <div className="max-sm:p-0 md:py-16 lg:py-36 2xl:px-48 md:px-18 sm:px-9 lg:px-36 ">
+          <div className="py:24 lg:py-36">
             <header>
               <Image
-                className="lg:mx-0 mx-auto "
+                className="lg:mx-48 mx-auto sm:mt-10"
                 src={logo}
                 alt="Picture of the author"
                 width={300}

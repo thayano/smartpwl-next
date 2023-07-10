@@ -1,8 +1,9 @@
 "use client";
 import { createContext, useEffect, useState } from "react";
-import { parseCookies, setCookie } from "nookies";
+// import { parseCookies, setCookie } from "nookies";
 import Router from "next/router";
 import axios from "axios";
+import secureLocalStorage from "react-secure-storage";
 // import { api } from "../services/api"
 // import { urlLogin, urlUsers } from '../routes/Routes'
 
@@ -13,13 +14,13 @@ export function AuthProvider({ children }) {
   const isAuthenticated = !!user;
 
   useEffect(() => {
-    const { user } = parseCookies();
     if (user) {
-      api.get(`${urlUsers} ${user}/`).then((response) => {
+      const idUser = secureLocalStorage.getItem('smartowl_user')
+      api.get(`https://www.smartowl.com.br/api/users/${idUser}/`).then((response) => {
         setUser(response.data);
       });
     }
-  }, []);
+  }, []); 
 
   async function singIn({ email, password, recaptcha }) {
     try {
@@ -30,11 +31,9 @@ export function AuthProvider({ children }) {
           password,
           recaptcha,
         }
-      );
-
-      setCookie(undefined, "smartowl_token", data.token);
-      // api.defaults.headers['Authorization'] = `token ${data.token}`;
-      setCookie(undefined, "user", data.user.id);
+      )
+      secureLocalStorage.setItem('smartowl_token', data.token);
+      secureLocalStorage.setItem('smartowl_user', data.user.id);
       setUser(data.user);
 
       Router.push("/app/home");
