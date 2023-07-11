@@ -2,7 +2,6 @@
 
 import { useContext, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Input } from "@/app/components/inputs/Inputs";
 import Button from "@/app/components/Button";
@@ -44,9 +43,10 @@ const AuthForm = () => {
       return null
     }
 
-    const { response } = await singIn(data);
+    const response = await singIn(data);
+    console.log(response)
 
-    if (response.status !== 200) {
+    if (response) {
       erroLogin(response)
       window.grecaptcha.reset();
     }
@@ -55,7 +55,7 @@ const AuthForm = () => {
   const erroLogin = ({ data }) => {
     setMsgError({
       message:
-        data.message ||
+        data?.message ||
         "Ocorreu um erro, entre em contato com o Suporte!",
       status: true,
       type: "error",
@@ -78,7 +78,7 @@ const AuthForm = () => {
   };
 
   return (
-    <div className="mx-auto py-8">
+    <div className="mx-auto">
       <div
         className="
           mx-auto
@@ -138,7 +138,7 @@ const AuthForm = () => {
           </div>
           <div>
             <Button fullWidth type="submit">
-              Entar
+              Entrar
             </Button>
           </div>
         </form>

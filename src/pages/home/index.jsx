@@ -2,9 +2,11 @@ import Head from 'next/head';
 // import NavBar from '@component/components/NavBar';
 // import { FooterInterno } from '@component/components/FooterInterno';
 import { useContext } from 'react';
-import { AuthContext } from '@component/contexts/AuthContext';
+import { AuthContext } from '@/app/context/AuthContext';
+import secureLocalStorage from "react-secure-storage";
 import { parseCookies } from 'nookies';
-import HomeContent from '@component/components/HomeContent';
+// import { parseCookies } from 'nookies';
+// import HomeContent from '@component/components/HomeContent';
 // import { DetailsHomeProvider } from '@component/contexts/DetailsHome';
 
 export default function Home() {
@@ -29,18 +31,20 @@ export default function Home() {
         </>
     );
 }
-// export const getServerSideProps = async (ctx) => {
-//     const { ['smartowl_token']: token } = parseCookies(ctx);
-//     if (!token) {
-//         return {
-//             redirect: {
-//                 destination: '/',
-//                 permanent: false
-//             }
-//         };
-//     }
-//     // await apiClient.get('/users')?
-//     return {
-//         props: {}
-//     };
-// };
+export const getServerSideProps = async (ctx) => {
+
+    const { smartowl_token } = parseCookies(ctx);
+    
+    if (!smartowl_token) {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: false
+            }
+        };
+    }
+    // await apiClient.get('/users')?
+    return {
+        props: {}
+    };
+}
