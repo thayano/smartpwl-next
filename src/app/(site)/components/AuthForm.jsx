@@ -3,10 +3,12 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { Input } from "@/app/components/inputs/Inputs";
 import Button from "@/app/components/Button";
 import { AuthContext } from "@/app/context/AuthContext";
 import { AlertContext } from "@/app/context/AlertContext";
+import { signIn, useSession } from 'next-auth/react';
 
 const ReCAPTCHA = dynamic(() => import("react-google-recaptcha"), {
   loading: () => "",
@@ -19,8 +21,10 @@ const objAlert = {
 };
 
 const AuthForm = () => {
+  const router = useRouter();
+  const [isLoading,setIsLoading] = useState(false)
   const [msgError, setMsgError] = useState(objAlert);
-  const { singIn } = useContext(AuthContext);
+  // const { singIn } = useContext(AuthContext);
 
   const {
     register,
@@ -36,21 +40,38 @@ const AuthForm = () => {
   })
 
   const onSubmit = async (data) => {
-    setMsgError({ status: false });
+    signIn('credentials', {
+      ...data,
+      redirect:false      // callbackUrl: `${window.location.origin}/account_page`
+    })
+    .then((callback) => {
+      console.log(callback)
+      // if (callback?.error) {
+      //   toast.error('Invalid credentials!');
+      // }
 
-    if (data.recaptcha == '') {
-      erroRecaptcha()
-      return null
-    }
-
-    const response = await singIn(data);
-    console.log(response)
-
-    if (response) {
-      erroLogin(response)
-      window.grecaptcha.reset();
-    }
+      if (callback?.ok) {
+        console.log(callback)
+        router.push('/home')
+      }
+    })
+    .finally(() => setIsLoading(false))
   }
+    // setMsgError({ status: false });
+
+    // if (data.recaptcha == '') {
+    //   erroRecaptcha()
+    //   return null
+    // }
+
+    // const response = await singIn(data);
+    // console.log(response)
+
+    // if (response) {
+    //   erroLogin(response)
+    //   window.grecaptcha.reset();
+    // }
+  
 
   const erroLogin = ({ data }) => {
     setMsgError({

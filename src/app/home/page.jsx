@@ -1,3 +1,4 @@
+
 import Head from "next/head";
 import { useContext } from "react";
 import { AuthContext } from "@/app/context/AuthContext";
@@ -21,39 +22,39 @@ export default function Home() {
     </>
   );
 }
-export const getServerSideProps = async (ctx) => {
-  const { ["smartowl_token"]: token } = parseCookies(ctx);
-  if (!token) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  } else {
-    console.log("oi")
-    // const bytes = CryptoJS.AES.decrypt(token, process.env.NEXT_CRYPTO);
-    // const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+// export const getServerSideProps = async (ctx) => {
+//   const { ["smartowl_token"]: token } = parseCookies(ctx);
+//   if (!token) {
+//     return {
+//       redirect: {
+//         destination: "/",
+//         permanent: false,
+//       },
+//     };
+//   } else {
+//     console.log("oi")
+//     // const bytes = CryptoJS.AES.decrypt(token, process.env.NEXT_CRYPTO);
+//     // const decrypted = bytes.toString(CryptoJS.enc.Utf8);
 
 
-    // const { data } = await axios.get("https://www.smartowl.com.br/api/users/by_token/",
-    //   { Headers: { Authorization: `token ${decrypted }` } }
-    // );
-    // console.log(data )
+//     // const { data } = await axios.get("https://www.smartowl.com.br/api/users/by_token/",
+//     //   { Headers: { Authorization: `token ${decrypted }` } }
+//     // );
+//     // console.log(data )
 
-    // const data  = await axios.get('/pages/api/login')
-    // console.log(data)
+//     // const data  = await axios.get('/pages/api/login')
+//     // console.log(data)
 
 
-    // if (data.token == user.token) {
-    //   return {
-    //     props: {},
-    //   };
-    // }
-  }
-    return {
-        props: {},
-      };
+//     // if (data.token == user.token) {
+//     //   return {
+//     //     props: {},
+//     //   };
+//     // }
+//   }
+//     return {
+//         props: {},
+//       };
   
-  // await apiClient.get('/users')?
-};
+//   // await apiClient.get('/users')?
+// };

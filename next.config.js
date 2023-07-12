@@ -6,6 +6,7 @@ const nextConfig = {
         MAPS_KEY:"AIzaSyDMvPYuHLuEaJtDBZBqGyMsr45UtglskTU",
         API_URL: "https://smartowl.com.br/api",
         NEXT_CRYPTO:'your-secret-password',
+        // NEXTAUTH_SECRET:'your-secret-password'
 
       },
 }
