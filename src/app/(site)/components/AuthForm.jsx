@@ -1,14 +1,13 @@
 "use client";
 
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { Input } from "@/app/components/inputs/Inputs";
 import Button from "@/app/components/Button";
-import { AuthContext } from "@/app/context/AuthContext";
 import { AlertContext } from "@/app/context/AlertContext";
-import { signIn, useSession } from 'next-auth/react';
+import { AuthContext } from "@/app/context/AuthContext";
 
 const ReCAPTCHA = dynamic(() => import("react-google-recaptcha"), {
   loading: () => "",
@@ -24,7 +23,7 @@ const AuthForm = () => {
   const router = useRouter();
   const [isLoading,setIsLoading] = useState(false)
   const [msgError, setMsgError] = useState(objAlert);
-  // const { singIn } = useContext(AuthContext);
+  const { singIn } = useContext(AuthContext);
 
   const {
     register,
@@ -40,23 +39,43 @@ const AuthForm = () => {
   })
 
   const onSubmit = async (data) => {
-    signIn('credentials', {
-      ...data,
-      redirect:false      // callbackUrl: `${window.location.origin}/account_page`
-    })
-    .then((callback) => {
-      console.log(callback)
-      // if (callback?.error) {
-      //   toast.error('Invalid credentials!');
-      // }
+    const response = await singIn(data)
 
-      if (callback?.ok) {
-        console.log(callback)
-        router.push('/home')
+      if (response) {
+        erroLogin(response)
+        window.grecaptcha.reset();
       }
-    })
-    .finally(() => setIsLoading(false))
+
+  // console.log(data)
+  //     // Chame a rota de autenticação do backend externo
+  //     axios.headers['X-Requested-With'] = 'XMLHttpRequest';
+
+  //     const response = await axios.post('/api/login', data)
+  
+      // if (response.ok) {
+      //   router.push('/home');
+      // } else {
+      //   console.log('Falha no login');
+      // }
   }
+    
+  //   signIn('credentials', {
+  //     ...data,
+  //     redirect:false      // callbackUrl: `${window.location.origin}/account_page`
+  //   })
+  //   .then((callback) => {
+  //     console.log(callback)
+  //     // if (callback?.error) {
+  //     //   toast.error('Invalid credentials!');
+  //     // }
+
+  //     if (callback?.ok) {
+  //       console.log(callback)
+  //       router.push('/home')
+  //     }
+  //   })
+  //   .finally(() => setIsLoading(false))
+  // }
     // setMsgError({ status: false });
 
     // if (data.recaptcha == '') {
